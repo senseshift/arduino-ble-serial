@@ -2,20 +2,34 @@
 #define BLESERIAL_H
 
 #include <Arduino.h>
-#include <BLE2902.h>
-#include <BLEDevice.h>
-#include <BLEServer.h>
-#include <BLEUtils.h>
+
+#ifndef BLESERIAL_USE_NIMBLE
+// Global flag to use NimBLE in all SenseShift libraries
+#  ifdef SS_USE_NIMBLE
+#    define BLESERIAL_USE_NIMBLE SS_USE_NIMBLE
+#  else // SS_USE_NIMBLE
+#    define BLESERIAL_USE_NIMBLE false
+#  endif // SS_USE_NIMBLE
+#endif // BLESERIAL_USE_NIMBLE
+
+#if defined(BLESERIAL_USE_NIMBLE) && BLESERIAL_USE_NIMBLE
+#  include <NimBLEDevice.h>
+#else // BLESERIAL_USE_NIMBLE
+#  include <BLE2902.h>
+#  include <BLEDevice.h>
+#endif // BLESERIAL_USE_NIMBLE
 
 #ifndef BLESERIAL_USE_STL
-#define BLESERIAL_USE_STL true
-#endif
+#  define BLESERIAL_USE_STL true
+#endif // BLESERIAL_USE_STL
 
 #if defined(BLESERIAL_USE_STL) && BLESERIAL_USE_STL
-#include <queue>
-#endif
+#  include <queue>
+#endif // BLESERIAL_USE_STL
 
-#define BLESERIAL_MTU 20
+#ifndef BLESERIAL_MTU
+#  define BLESERIAL_MTU 20
+#endif // BLESERIAL_MTU
 
 template <typename T>
 class BLESerialCharacteristicCallbacks;
@@ -28,9 +42,9 @@ class BLESerialServerCallbacks;
  */
 #if defined(BLESERIAL_USE_STL) && BLESERIAL_USE_STL
 template <typename T = std::queue<uint8_t>>
-#else
+#else // BLESERIAL_USE_STL
 template <typename T>
-#endif
+#endif // BLESERIAL_USE_STL
 class BLESerial : public Stream {
     friend class BLESerialCharacteristicCallbacks<T>;
     friend class BLESerialServerCallbacks<T>;
@@ -182,7 +196,11 @@ class BLESerial : public Stream {
         auto pRxCharacteristic = pService->getCharacteristic(rxUuid);
         if (pRxCharacteristic == nullptr) {
             log_d("Creating BLE characteristic with UUIDs '%s' (RX)", rxUuid);
+#if defined(BLESERIAL_USE_NIMBLE) && BLESERIAL_USE_NIMBLE
+            pRxCharacteristic = pService->createCharacteristic(rxUuid, NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::WRITE_NR);
+#else // BLESERIAL_USE_NIMBLE
             pRxCharacteristic = pService->createCharacteristic(rxUuid, BLECharacteristic::PROPERTY_WRITE_NR);
+#endif // BLESERIAL_USE_NIMBLE
         } else {
             log_w("BLE characteristic with UUID '%s' (RX) already exists", rxUuid);
         }
@@ -190,10 +208,14 @@ class BLESerial : public Stream {
         auto pTxCharacteristic = pService->getCharacteristic(txUuid);
         if (pTxCharacteristic == nullptr) {
             log_d("Creating BLE characteristic with UUIDs '%s' (TX)", txUuid);
+#if defined(BLESERIAL_USE_NIMBLE) && BLESERIAL_USE_NIMBLE
+            pTxCharacteristic = pService->createCharacteristic(txUuid, NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::NOTIFY);
+#else // BLESERIAL_USE_NIMBLE
             pTxCharacteristic = pService->createCharacteristic(
               txUuid,
               BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY
             );
+#endif // BLESERIAL_USE_NIMBLE
         } else {
             log_w("BLE characteristic with UUID '%s' (TX) already exists", txUuid);
         }
@@ -210,6 +232,7 @@ class BLESerial : public Stream {
      */
     void begin(BLECharacteristic* pRxCharacteristic, BLECharacteristic* pTxCharacteristic);
 
+#if !defined(BLESERIAL_USE_NIMBLE) && !BLESERIAL_USE_NIMBLE
     void end()
     {
         if (this->m_pService != nullptr) {
@@ -222,6 +245,7 @@ class BLESerial : public Stream {
 
         this->m_pServer = nullptr;
     }
+#endif // BLESERIAL_USE_NIMBLE
 
     bool connected() { return m_pServer != nullptr && m_pServer->getConnectedCount() > 0; }
 
@@ -235,13 +259,7 @@ class BLESerialServerCallbacks : public BLEServerCallbacks {
   public:
     BLESerialServerCallbacks(BLESerial<T>* bleSerial) : bleSerial(bleSerial) {}
 
-    void onConnect(BLEServer* pServer, esp_ble_gatts_cb_param_t* param) override
-    {
-        uint16_t conn_id = param->connect.conn_id;
-        pServer->updatePeerMTU(conn_id, BLESERIAL_MTU);
-    }
-
-    void onDisconnect(BLEServer* pServer, esp_ble_gatts_cb_param_t* param) override
+    void onDisconnect(BLEServer* pServer) override
     {
         auto* pAdvertising = pServer->getAdvertising();
         if (pAdvertising == nullptr) {
@@ -312,15 +330,20 @@ void BLESerial<T>::begin(BLECharacteristic* pRxCharacteristic, BLECharacteristic
     this->m_pRxCharacteristic = pRxCharacteristic;
     this->m_pTxCharacteristic = pTxCharacteristic;
 
+    this->m_pRxCharacteristic->setCallbacks(new BLESerialCharacteristicCallbacks<T>(this));
+
+    #if !defined(BLESERIAL_USE_NIMBLE) && !BLESERIAL_USE_NIMBLE
     // this->m_pRxCharacteristic->setAccessPermissions(ESP_GATT_PERM_WRITE_ENCRYPTED);
     this->m_pRxCharacteristic->addDescriptor(new BLE2902());
-    this->m_pRxCharacteristic->setCallbacks(new BLESerialCharacteristicCallbacks<T>(this));
     this->m_pRxCharacteristic->setWriteProperty(true);
+    #endif
 
+    #if !defined(BLESERIAL_USE_NIMBLE) && !BLESERIAL_USE_NIMBLE
     // this->m_pTxCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED);
     this->m_pTxCharacteristic->addDescriptor(new BLE2902());
     this->m_pTxCharacteristic->setReadProperty(true);
     this->m_pTxCharacteristic->setNotifyProperty(true);
+    #endif
 }
 
 #endif // BLESERIAL_H
