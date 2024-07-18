@@ -332,13 +332,13 @@ void BLESerial<T>::begin(BLECharacteristic* pRxCharacteristic, BLECharacteristic
 
     this->m_pRxCharacteristic->setCallbacks(new BLESerialCharacteristicCallbacks<T>(this));
 
-    #if !defined(BLESERIAL_USE_NIMBLE) && !BLESERIAL_USE_NIMBLE
+    #if !defined(BLESERIAL_USE_NIMBLE) || !BLESERIAL_USE_NIMBLE
     // this->m_pRxCharacteristic->setAccessPermissions(ESP_GATT_PERM_WRITE_ENCRYPTED);
     this->m_pRxCharacteristic->addDescriptor(new BLE2902());
     this->m_pRxCharacteristic->setWriteProperty(true);
     #endif
 
-    #if !defined(BLESERIAL_USE_NIMBLE) && !BLESERIAL_USE_NIMBLE
+    #if !defined(BLESERIAL_USE_NIMBLE) || !BLESERIAL_USE_NIMBLE
     // this->m_pTxCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED);
     this->m_pTxCharacteristic->addDescriptor(new BLE2902());
     this->m_pTxCharacteristic->setReadProperty(true);
