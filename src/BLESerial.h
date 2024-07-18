@@ -31,28 +31,25 @@
 #  define BLESERIAL_MTU 20
 #endif // BLESERIAL_MTU
 
-template <typename T>
+template<typename T>
 class BLESerialCharacteristicCallbacks;
 
-template <typename T>
+template<typename T>
 class BLESerialServerCallbacks;
 
 /**
  * @tparam T Type of the receive buffer
  */
 #if defined(BLESERIAL_USE_STL) && BLESERIAL_USE_STL
-template <typename T = std::queue<uint8_t>>
-#else // BLESERIAL_USE_STL
-template <typename T>
+template<typename T = std::queue<uint8_t>>
+#else  // BLESERIAL_USE_STL
+template<typename T>
 #endif // BLESERIAL_USE_STL
 class BLESerial : public Stream {
     friend class BLESerialCharacteristicCallbacks<T>;
     friend class BLESerialServerCallbacks<T>;
 
   private:
-    BLESerial(BLESerial const& other) = delete;      // disable copy constructor
-    void operator=(BLESerial const& other) = delete; // disable assign constructor
-
     T m_receiveBuffer;
 
     /**
@@ -84,17 +81,21 @@ class BLESerial : public Stream {
 
     BLESerial() : m_receiveBuffer() {}
 
-    [[inline]] virtual int available() override { return !m_receiveBuffer.empty(); }
+    BLESerial(BLESerial const& other) = delete;      // disable copy constructor
+    void operator=(BLESerial const& other) = delete; // disable assign constructor
 
-    [[inline]] virtual int peek() override { return m_receiveBuffer.front(); }
+    inline int available() override { return !m_receiveBuffer.empty(); }
 
-    virtual int read() override {
+    inline int peek() override { return m_receiveBuffer.front(); }
+
+    int read() override
+    {
         auto front = m_receiveBuffer.front();
         m_receiveBuffer.pop();
         return front;
     }
 
-    virtual size_t write(const uint8_t* buffer, size_t bufferSize) override
+    size_t write(const uint8_t* buffer, size_t bufferSize) override
     {
         if (this->m_pTxCharacteristic == nullptr || !this->connected()) {
             return 0;
@@ -106,7 +107,7 @@ class BLESerial : public Stream {
         return bufferSize;
     }
 
-    virtual size_t write(uint8_t byte) override
+    size_t write(uint8_t byte) override
     {
         if (this->m_pTxCharacteristic == nullptr || !this->connected()) {
             return 0;
@@ -118,14 +119,15 @@ class BLESerial : public Stream {
         return 1;
     }
 
-    virtual void flush(void) override { this->m_pTxCharacteristic->notify(true); }
+    void flush(void) override { this->m_pTxCharacteristic->notify(true); }
 
     void begin(
-      String deviceName = String(),
+      const String& deviceName = String(),
       const char* serviceUuid = SERVICE_UUID,
       const char* rxUuid = RX_UUID,
       const char* txUuid = TX_UUID
-    ) {
+    )
+    {
         this->begin(deviceName.c_str(), serviceUuid, rxUuid, txUuid);
     }
 
@@ -173,7 +175,7 @@ class BLESerial : public Stream {
             log_w("BLE service with UUID '%s' already exists", serviceUuid);
         }
 
-        // Store the service so we know if we're managing it
+        // Store the service, so we know if we're managing it
         this->m_pService = pService;
 
         this->begin(pService, rxUuid, txUuid);
@@ -193,24 +195,25 @@ class BLESerial : public Stream {
      */
     void begin(BLEService* pService, const char* rxUuid = RX_UUID, const char* txUuid = TX_UUID)
     {
-        auto pRxCharacteristic = pService->getCharacteristic(rxUuid);
+        auto* pRxCharacteristic = pService->getCharacteristic(rxUuid);
         if (pRxCharacteristic == nullptr) {
             log_d("Creating BLE characteristic with UUIDs '%s' (RX)", rxUuid);
 #if defined(BLESERIAL_USE_NIMBLE) && BLESERIAL_USE_NIMBLE
-            pRxCharacteristic = pService->createCharacteristic(rxUuid, NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::WRITE_NR);
-#else // BLESERIAL_USE_NIMBLE
+            pRxCharacteristic =
+              pService->createCharacteristic(rxUuid, NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::WRITE_NR);
+#else  // BLESERIAL_USE_NIMBLE
             pRxCharacteristic = pService->createCharacteristic(rxUuid, BLECharacteristic::PROPERTY_WRITE_NR);
 #endif // BLESERIAL_USE_NIMBLE
         } else {
             log_w("BLE characteristic with UUID '%s' (RX) already exists", rxUuid);
         }
 
-        auto pTxCharacteristic = pService->getCharacteristic(txUuid);
+        auto* pTxCharacteristic = pService->getCharacteristic(txUuid);
         if (pTxCharacteristic == nullptr) {
             log_d("Creating BLE characteristic with UUIDs '%s' (TX)", txUuid);
 #if defined(BLESERIAL_USE_NIMBLE) && BLESERIAL_USE_NIMBLE
             pTxCharacteristic = pService->createCharacteristic(txUuid, NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::NOTIFY);
-#else // BLESERIAL_USE_NIMBLE
+#else  // BLESERIAL_USE_NIMBLE
             pTxCharacteristic = pService->createCharacteristic(
               txUuid,
               BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY
@@ -247,17 +250,17 @@ class BLESerial : public Stream {
     }
 #endif // BLESERIAL_USE_NIMBLE
 
-    bool connected() { return m_pServer != nullptr && m_pServer->getConnectedCount() > 0; }
+    auto connected() -> bool { return m_pServer != nullptr && m_pServer->getConnectedCount() > 0; }
 
-    BLECharacteristic* getRxCharacteristic() { return m_pRxCharacteristic; }
+    auto getRxCharacteristic() -> BLECharacteristic* { return m_pRxCharacteristic; }
 
-    BLECharacteristic* getTxCharacteristic() { return m_pTxCharacteristic; }
+    auto getTxCharacteristic() -> BLECharacteristic* { return m_pTxCharacteristic; }
 };
 
-template <typename T>
+template<typename T>
 class BLESerialServerCallbacks : public BLEServerCallbacks {
   public:
-    BLESerialServerCallbacks(BLESerial<T>* bleSerial) : bleSerial(bleSerial) {}
+    explicit BLESerialServerCallbacks(BLESerial<T>* bleSerial) : bleSerial(bleSerial) {}
 
     void onDisconnect(BLEServer* pServer) override
     {
@@ -272,12 +275,12 @@ class BLESerialServerCallbacks : public BLEServerCallbacks {
     BLESerial<T>* bleSerial;
 };
 
-template <typename T>
+template<typename T>
 class BLESerialCharacteristicCallbacks : public BLECharacteristicCallbacks {
   public:
-    BLESerialCharacteristicCallbacks(BLESerial<T>* bleSerial) : bleSerial(bleSerial) {}
+    explicit BLESerialCharacteristicCallbacks(BLESerial<T>* bleSerial) : bleSerial(bleSerial) {}
 
-    void onWrite(BLECharacteristic* pCharacteristic)
+    void onWrite(BLECharacteristic* pCharacteristic) override
     {
         if (pCharacteristic != bleSerial->m_pRxCharacteristic) {
             return;
@@ -293,16 +296,16 @@ class BLESerialCharacteristicCallbacks : public BLECharacteristicCallbacks {
     BLESerial<T>* bleSerial;
 };
 
-template <typename T>
+template<typename T>
 const char* BLESerial<T>::SERVICE_UUID = "6E400001-B5A3-F393-E0A9-E50E24DCCA9E";
 
-template <typename T>
+template<typename T>
 const char* BLESerial<T>::RX_UUID = "6E400002-B5A3-F393-E0A9-E50E24DCCA9E";
 
-template <typename T>
+template<typename T>
 const char* BLESerial<T>::TX_UUID = "6E400003-B5A3-F393-E0A9-E50E24DCCA9E";
 
-template <typename T>
+template<typename T>
 void BLESerial<T>::begin(const char* deviceName, const char* serviceUuid, const char* rxUuid, const char* txUuid)
 {
     // Create the BLE Device
@@ -323,7 +326,7 @@ void BLESerial<T>::begin(const char* deviceName, const char* serviceUuid, const 
     log_d("Started BLE advertising");
 }
 
-template <typename T>
+template<typename T>
 void BLESerial<T>::begin(BLECharacteristic* pRxCharacteristic, BLECharacteristic* pTxCharacteristic)
 {
     // Store the characteristics, so we know if we're managing them
@@ -332,18 +335,18 @@ void BLESerial<T>::begin(BLECharacteristic* pRxCharacteristic, BLECharacteristic
 
     this->m_pRxCharacteristic->setCallbacks(new BLESerialCharacteristicCallbacks<T>(this));
 
-    #if !defined(BLESERIAL_USE_NIMBLE) || !BLESERIAL_USE_NIMBLE
+#if !defined(BLESERIAL_USE_NIMBLE) || !BLESERIAL_USE_NIMBLE
     // this->m_pRxCharacteristic->setAccessPermissions(ESP_GATT_PERM_WRITE_ENCRYPTED);
     this->m_pRxCharacteristic->addDescriptor(new BLE2902());
     this->m_pRxCharacteristic->setWriteProperty(true);
-    #endif
+#endif
 
-    #if !defined(BLESERIAL_USE_NIMBLE) || !BLESERIAL_USE_NIMBLE
+#if !defined(BLESERIAL_USE_NIMBLE) || !BLESERIAL_USE_NIMBLE
     // this->m_pTxCharacteristic->setAccessPermissions(ESP_GATT_PERM_READ_ENCRYPTED);
     this->m_pTxCharacteristic->addDescriptor(new BLE2902());
     this->m_pTxCharacteristic->setReadProperty(true);
     this->m_pTxCharacteristic->setNotifyProperty(true);
-    #endif
+#endif
 }
 
 #endif // BLESERIAL_H
