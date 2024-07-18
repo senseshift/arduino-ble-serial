@@ -27,5 +27,8 @@
     },
     "build": {
         "srcDir": "src"
+    },
+    "dependencies": {
+        "ESP32 BLE Arduino": "^2.0.0"
     }
 }
