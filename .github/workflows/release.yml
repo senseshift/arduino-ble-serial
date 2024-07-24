@@ -1,0 +1,32 @@
+name: Release
+
+on:
+  workflow_dispatch:
+  release:
+    types:
+      - created
+  pull_request:
+    paths:
+      - '.github/workflows/release.yml'
+
+jobs:
+  platformio:
+    name: PlatformIO
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Python 3.x
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install PlatformIO
+        run: pip install platformio
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Publish
+        if: startsWith(github.ref, 'refs/tags/') && github.repository == 'senseshift/arduino-ble-serial'
+        run: pio pkg publish --no-interactive
+        env:
+          PLATFORMIO_AUTH_TOKEN: ${{ secrets.PLATFORMIO_AUTH_TOKEN }}
