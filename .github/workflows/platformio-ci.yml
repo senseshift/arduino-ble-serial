@@ -1,0 +1,66 @@
+on:
+  pull_request:
+    paths-ignore:
+      - "**/*.md"
+  push:
+    branches:
+      - master
+      - main
+      - develop
+      - support/*
+    paths-ignore:
+      - "**/*.md"
+
+jobs:
+  platformio:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest ]
+        example:
+          - "SerialToSerialBLE"
+        boards:
+          - [ esp32dev, esp32-s3-devkitc-1, esp32-c3-devkitm-1 ]
+        nimble: [ false, true ]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Cache PlatformIO
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.platformio/.cache
+            ./.pio
+          key: ${{ runner.os }}-pio-${{ hashFiles('**/*.ini') }}
+          restore-keys: |
+            ${{ runner.os }}-pio-
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+
+      - name: Install PlatformIO
+        run: |
+          python -m pip install --upgrade pip
+          pip install --upgrade platformio
+          pio upgrade --dev
+          pio pkg update --global
+
+      - name: Build example
+        run: |
+          pio ci --lib="." --board=${{ join(matrix.boards, ' --board=') }} ${{ matrix.nimble && '--project-option="lib_deps=h2zero/NimBLE-Arduino@^1.4.0"' || '' }}
+        env:
+          PLATFORMIO_CI_SRC: "./examples/${{ matrix.example }}/*.ino"
+          PLATFORMIO_BUILD_FLAGS: "-D BLESERIAL_USE_NIMBLE=${{ matrix.nimble }}"

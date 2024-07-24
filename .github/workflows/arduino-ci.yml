@@ -1,0 +1,47 @@
+on:
+  pull_request:
+    paths-ignore:
+      - "**/*.md"
+  push:
+    branches:
+      - master
+      - main
+      - develop
+      - support/*
+    paths-ignore:
+      - "**/*.md"
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: arduino/arduino-lint-action@v1
+        # with:
+        #  library-manager: update
+
+  build-examples:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        fqbn:
+          - "esp32:esp32:esp32"
+          - "esp32:esp32:esp32s3"
+          - "esp32:esp32:esp32c3"
+        nimble: [ false, true ]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: arduino/compile-sketches@v1
+        with:
+          fqbn: ${{ matrix.fqbn }}
+          libraries: |
+            - source-path: ./
+            - name: NimBLE-Arduino
+          cli-compile-flags: |
+            - --build-property 
+            - build.extra_flags="-DBLESERIAL_USE_NIMBLE=${{ matrix.nimble }}"
