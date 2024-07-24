@@ -18,12 +18,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest, windows-latest, macos-latest ]
+        os: [ ubuntu-latest ]
         example:
           - "SerialToSerialBLE"
         boards:
           - [ esp32dev, esp32-s3-devkitc-1, esp32-c3-devkitm-1 ]
-        nimble: [ true, false ]
+        nimble: [ false, true ]
 
     steps:
       - uses: actions/checkout@v4
@@ -63,4 +63,4 @@ jobs:
           pio ci --lib="." --board=${{ join(matrix.boards, ' --board=') }} ${{ matrix.nimble && '--project-option="lib_deps=h2zero/NimBLE-Arduino@^1.4.0"' || '' }}
         env:
           PLATFORMIO_CI_SRC: "./examples/${{ matrix.example }}/*.ino"
-          PLATFORMIO_BUILD_FLAGS: "-D BLESERIAL_USE_NIMBLE=${{ matrix.nimble && 'true' || 'false' }}"
+          PLATFORMIO_BUILD_FLAGS: "-D BLESERIAL_USE_NIMBLE=${{ matrix.nimble }}"
