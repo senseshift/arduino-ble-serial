@@ -2,12 +2,29 @@
     "$schema": "https://raw.githubusercontent.com/platformio/platformio-core/develop/platformio/assets/schema/library.json",
     "name": "Serial_BLE",
     "version": "1.1.1",
+    "description": "Customizable Arduino and ESP32 BLE Serial library, compliant with Nordic UART Service and others.",
+    "keywords": [
+        "serial",
+        "ble",
+        "uart",
+        "nus",
+        "nimble"
+    ],
+    "homepage": "https://github.com/senseshift/arduino-ble-serial",
     "repository": {
         "url": "git@github.com:senseshift/arduino-ble-serial.git",
         "type": "git"
     },
+    "authors": [{
+        "name": "Leonid Meleshin",
+        "email": "hello@leon0399.ru",
+        "url": "https://leon0399.ru/",
+        "maintainer": true
+    }],
+    "license": "MIT",
     "frameworks": "arduino",
     "platforms": "espressif32",
+    "headers": ["BLESerial.h"],
     "export": {
         "include": [
             "src",

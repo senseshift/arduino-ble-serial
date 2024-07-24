@@ -1,0 +1,16 @@
+#######################################
+# Classes, datatypes (KEYWORD1)
+#######################################
+
+BLESerial	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+begin	KEYWORD2
+available	KEYWORD2
+peek	KEYWORD2
+read	KEYWORD2
+write	KEYWORD2
+end	KEYWORD2
