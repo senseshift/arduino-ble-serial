@@ -6,6 +6,9 @@ This library allows using Nordic UART Service (NUS) with ESP32 Arduino.
 
 [![Discord Widget](https://discord.com/api/guilds/966090258104062023/widget.png?style=banner2)](https://discord.gg/YUtRKAqty2)
 
+[![PlatformIO Registry](https://badges.registry.platformio.org/packages/leon0399/library/Serial_BLE.svg)](https://registry.platformio.org/libraries/leon0399/Serial_BLE)
+[![GitHub release](https://img.shields.io/github/v/release/senseshift/arduino-ble-serial)](https://github.com/senseshift/arduino-ble-serial/releases/latest)
+
 [![MIT](https://img.shields.io/github/license/senseshift/arduino-ble-serial)](/LICENSE)
 [![GitHub contributors](https://img.shields.io/github/contributors/senseshift/arduino-ble-serial)](https://github.com/senseshift/arduino-ble-serial/graphs/contributors)
 [![GitHub](https://img.shields.io/github/stars/senseshift/arduino-ble-serial.svg)](https://github.com/senseshift/arduino-ble-serial)
@@ -16,6 +19,15 @@ This library allows using Nordic UART Service (NUS) with ESP32 Arduino.
 - [x] [ETL (Embedded Template Library)](https://github.com/ETLCPP/etl) support
 - [x] NimBLE support through [NimBLE-Arduino](https://github.com/h2zero/NimBLE-Arduino) library.
 - [x] Custom Server and Characteristics configuration
+
+## Installation
+
+### PlatformIO
+
+```diff
+lib_deps =
++  leon0399/Serial_BLE
+```
 
 ## Client-side usage
 
