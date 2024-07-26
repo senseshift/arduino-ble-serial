@@ -6,7 +6,7 @@ This library allows using Nordic UART Service (NUS) with ESP32 Arduino.
 
 [![Discord Widget](https://discord.com/api/guilds/966090258104062023/widget.png?style=banner2)](https://discord.gg/YUtRKAqty2)
 
-[![PlatformIO Registry](https://badges.registry.platformio.org/packages/leon0399/library/Serial_BLE.svg)](https://registry.platformio.org/libraries/leon0399/Serial_BLE)
+[![PlatformIO Registry](https://badges.registry.platformio.org/packages/senseshift/library/Serial_BLE.svg)](https://registry.platformio.org/libraries/senseshift/Serial_BLE)
 [![Arduino Library](https://www.ardu-badge.com/badge/Serial_BLE.svg?)](https://www.ardu-badge.com/Serial_BLE)
 [![GitHub release](https://img.shields.io/github/v/release/senseshift/arduino-ble-serial)](https://github.com/senseshift/arduino-ble-serial/releases/latest)
 
@@ -30,7 +30,7 @@ This library allows using Nordic UART Service (NUS) with ESP32 Arduino.
 
 ```diff
 lib_deps =
-+  leon0399/Serial_BLE
++  senseshift/Serial_BLE
 ```
 
 ## Client-side usage
@@ -171,7 +171,7 @@ Change your `platformio.ini` file to the following settings:
 
 ```diff
 lib_deps = 
-+  NimBLE-Arduino
++  h2zero/NimBLE-Arduino@^1.4.0
 
 build_flags = 
 +  -D BLESERIAL_USE_NIMBLE=true
