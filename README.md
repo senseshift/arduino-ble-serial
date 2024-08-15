@@ -158,12 +158,19 @@ Flash: [====      ]  44.2% (used 579158 bytes from 1310720 bytes)</pre>
 
 ### Arduino IDE
 
-Change the following line in `BLESerial.h`:
+1. Make sure to install `NimBLE-Arduino` library in Arduino IDE.
+2. Update `BLESERIAL_USE_NIMBLE` setting **Before** including library header:
+    ```diff
+    + #define BLESERIAL_USE_NIMBLE true
+    #include <BLESerial.h>
+    ```
 
-```diff
-- #    define BLESERIAL_USE_NIMBLE false
-+ #    define BLESERIAL_USE_NIMBLE true
-```
+    Alternatively, сhange the following line in `BLESerial.h`:
+
+    ```diff
+    - #    define BLESERIAL_USE_NIMBLE false
+    + #    define BLESERIAL_USE_NIMBLE true
+    ```
 
 ### PlatformIO
 
