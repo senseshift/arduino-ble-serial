@@ -63,4 +63,8 @@ jobs:
           pio ci --lib="." --board=${{ join(matrix.boards, ' --board=') }} ${{ matrix.nimble && '--project-option="lib_deps=h2zero/NimBLE-Arduino@^1.4.0"' || '' }}
         env:
           PLATFORMIO_CI_SRC: "./examples/${{ matrix.example }}/*.ino"
-          PLATFORMIO_BUILD_FLAGS: "-D BLESERIAL_USE_NIMBLE=${{ matrix.nimble }}"
+          PLATFORMIO_BUILD_FLAGS: |
+            -D BLESERIAL_USE_NIMBLE=${{ matrix.nimble }}
+            -Wall
+            -Wextra
+            -Wpedantic
