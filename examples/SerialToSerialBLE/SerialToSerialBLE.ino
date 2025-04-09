@@ -7,6 +7,8 @@
 
 String device_name = "ESP32-BLE-Slave";
 
+// Mind the empty template argument (<>), it is required for
+// the code to compile with the current Arduino C++ compiler version
 BLESerial<> SerialBLE;
 
 // FOR ETL: Uncomment one of the following lines
