@@ -19,8 +19,8 @@ jobs:
       - uses: actions/checkout@v4
 
       - uses: arduino/arduino-lint-action@v1
-        # with:
-        #  library-manager: update
+        with:
+          library-manager: update
 
   build-examples:
     runs-on: ubuntu-latest
