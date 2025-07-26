@@ -19,6 +19,16 @@
 #  include <BLEDevice.h>
 #endif // BLESERIAL_USE_NIMBLE
 
+#if !defined(BLESERIAL_NIMBLE_VERSION_MAJOR) && defined(BLESERIAL_USE_NIMBLE) && BLESERIAL_USE_NIMBLE
+#  if __has_include(<NimBLEAdvertisementData.h>)
+#    define BLESERIAL_NIMBLE_VERSION_MAJOR 2
+// #    warning "Using NimBLE version 2"
+#  else // __has_include(<NimBLEAdvertisementData.h>)
+#    define BLESERIAL_NIMBLE_VERSION_MAJOR 1
+// #    warning "Using NimBLE version 1"
+#  endif // __has_include(<NimBLEAdvertisementData.h>)
+#endif // BLESERIAL_USE_NIMBLE
+
 #ifndef BLESERIAL_USE_STL
 #  define BLESERIAL_USE_STL true
 #endif // BLESERIAL_USE_STL
@@ -262,7 +272,17 @@ class BLESerialServerCallbacks : public BLEServerCallbacks {
   public:
     explicit BLESerialServerCallbacks(BLESerial<T>* bleSerial) : bleSerial(bleSerial) {}
 
+#if defined(BLESERIAL_USE_NIMBLE) && BLESERIAL_USE_NIMBLE
+#  if defined(BLESERIAL_NIMBLE_VERSION_MAJOR) && BLESERIAL_NIMBLE_VERSION_MAJOR >= 2
+// #   warning "Using NimBLE version 2 for BLESerialServerCallbacks"
+    void onDisconnect(NimBLEServer* pServer, NimBLEConnInfo& connInfo, int reason) override
+#  else // BLESERIAL_NIMBLE_VERSION_MAJOR >= 2
+// #   warning "Using NimBLE version 1 for BLESerialServerCallbacks"
+    void onDisconnect(NimBLEServer* pServer, ble_gap_conn_desc* desc) override
+#  endif // BLESERIAL_NIMBLE_VERSION_MAJOR >= 2
+#else // BLESERIAL_USE_NIMBLE
     void onDisconnect(BLEServer* pServer) override
+#endif // BLESERIAL_USE_NIMBLE
     {
         auto* pAdvertising = pServer->getAdvertising();
         if (pAdvertising == nullptr) {
@@ -280,7 +300,17 @@ class BLESerialCharacteristicCallbacks : public BLECharacteristicCallbacks {
   public:
     explicit BLESerialCharacteristicCallbacks(BLESerial<T>* bleSerial) : bleSerial(bleSerial) {}
 
+#if defined(BLESERIAL_USE_NIMBLE) && BLESERIAL_USE_NIMBLE
+#  if defined(BLESERIAL_NIMBLE_VERSION_MAJOR) && BLESERIAL_NIMBLE_VERSION_MAJOR >= 2
+// #   warning "Using NimBLE version 2 for BLESerialCharacteristicCallbacks"
+    void onWrite(NimBLECharacteristic* pCharacteristic, NimBLEConnInfo& connInfo) override
+#  else // BLESERIAL_NIMBLE_VERSION_MAJOR >= 2
+// #   warning "Using NimBLE version 1 for BLESerialCharacteristicCallbacks"
+    void onWrite(NimBLECharacteristic* pCharacteristic, ble_gap_conn_desc* desc) override
+#  endif // BLESERIAL_NIMBLE_VERSION_MAJOR >= 2
+#else // BLESERIAL_USE_NIMBLE
     void onWrite(BLECharacteristic* pCharacteristic) override
+#endif // BLESERIAL_USE_NIMBLE
     {
         if (pCharacteristic != bleSerial->m_pRxCharacteristic) {
             return;
