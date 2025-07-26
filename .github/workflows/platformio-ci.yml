@@ -21,9 +21,17 @@ jobs:
         os: [ ubuntu-latest ]
         example:
           - "SerialToSerialBLE"
+          - "SerialToSerialBLE_TransparentUART"
+          - "SerialToSerialBLE_TransparentUART-NimBLE"
         boards:
           - [ esp32dev, esp32-s3-devkitc-1, esp32-c3-devkitm-1 ]
         nimble: [ false, true ]
+
+        exclude:
+          - example: "SerialToSerialBLE_TransparentUART"
+            nimble: true
+          - example: "SerialToSerialBLE_TransparentUART-NimBLE"
+            nimble: false
 
     steps:
       - uses: actions/checkout@v4

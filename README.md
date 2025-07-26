@@ -11,7 +11,7 @@ This library allows using Nordic UART Service (NUS) with ESP32 Arduino.
 [![GitHub release](https://img.shields.io/github/v/release/senseshift/arduino-ble-serial)](https://github.com/senseshift/arduino-ble-serial/releases/latest)
 
 [![PlatformIO CI](https://github.com/senseshift/arduino-ble-serial/actions/workflows/platformio-ci.yml/badge.svg)](https://github.com/senseshift/arduino-ble-serial/actions/workflows/platformio-ci.yml)
-[![PlatformIO CI](https://github.com/senseshift/arduino-ble-serial/actions/workflows/arduino-ci.yml/badge.svg)](https://github.com/senseshift/arduino-ble-serial/actions/workflows/arduino-ci.yml)
+[![Arduino CI](https://github.com/senseshift/arduino-ble-serial/actions/workflows/arduino-ci.yml/badge.svg)](https://github.com/senseshift/arduino-ble-serial/actions/workflows/arduino-ci.yml)
 
 [![MIT](https://img.shields.io/github/license/senseshift/arduino-ble-serial)](/LICENSE)
 [![GitHub contributors](https://img.shields.io/github/contributors/senseshift/arduino-ble-serial)](https://github.com/senseshift/arduino-ble-serial/graphs/contributors)

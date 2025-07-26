@@ -31,7 +31,9 @@ jobs:
           - "esp32:esp32:esp32"
           - "esp32:esp32:esp32s3"
           - "esp32:esp32:esp32c3"
-        nimble: [ false, true ]
+        nimble:
+          - false
+          - true
       fail-fast: false
 
     steps:
@@ -40,6 +42,8 @@ jobs:
       - uses: arduino/compile-sketches@v1
         with:
           fqbn: ${{ matrix.fqbn }}
+          sketch-paths: |
+            - examples/SerialToSerialBLE
           libraries: |
             - source-path: ./
             - name: NimBLE-Arduino
