@@ -21,9 +21,31 @@ jobs:
         os: [ ubuntu-latest ]
         example:
           - "SerialToSerialBLE"
+          # - "SerialToSerialBLE_TransparentUART"
+          - "SerialToSerialBLE_TransparentUART-NimBLE"
         boards:
           - [ esp32dev, esp32-s3-devkitc-1, esp32-c3-devkitm-1 ]
-        nimble: [ false, true ]
+        nimble:
+          - false
+          - '^1.4.0'
+          - '^2.0.0'
+
+        exclude:
+          - example: "SerialToSerialBLE_TransparentUART-NimBLE"
+            nimble: false
+        #   - example: "SerialToSerialBLE_TransparentUART"
+        #     nimble: '^1.4.0'
+        #   - example: "SerialToSerialBLE_TransparentUART"
+        #     nimble: '^2.0.0'
+        include:
+          - example: "SerialToSerialBLE_TransparentUART-NimBLE"
+            nimble: '^2.0.0'
+            os: ubuntu-latest
+            boards: [esp32dev, esp32-s3-devkitc-1, esp32-c3-devkitm-1]
+          - example: "SerialToSerialBLE_TransparentUART-NimBLE"
+            nimble: '^1.4.0'
+            os: ubuntu-latest
+            boards: [esp32dev, esp32-s3-devkitc-1, esp32-c3-devkitm-1]
 
     steps:
       - uses: actions/checkout@v4
@@ -60,11 +82,14 @@ jobs:
 
       - name: Build example
         run: |
-          pio ci --lib="." --board=${{ join(matrix.boards, ' --board=') }} ${{ matrix.nimble && '--project-option="lib_deps=h2zero/NimBLE-Arduino@^1.4.0"' || '' }}
+          pio ci --lib="." --board=${{ join(matrix.boards, ' --board=') }} ${{ matrix.nimble && format('--project-option="lib_deps=h2zero/NimBLE-Arduino@{0}"', matrix.nimble) || '' }}
         env:
           PLATFORMIO_CI_SRC: "./examples/${{ matrix.example }}/*.ino"
+          PLATFORMIO_BUILD_UNFLAGS: |
+            -std=gnu++11
           PLATFORMIO_BUILD_FLAGS: |
-            -D BLESERIAL_USE_NIMBLE=${{ matrix.nimble }}
+            -std=gnu++17
+            -D BLESERIAL_USE_NIMBLE=${{ matrix.nimble != false }}
             -Wall
             -Wextra
             -Wpedantic

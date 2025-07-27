@@ -5,8 +5,6 @@
 // #include <etl/queue.h>
 // #include <etl/circular_buffer.h>
 
-String device_name = "ESP32-BLE-Slave";
-
 BLESerial SerialBLE;
 // If you are using an older version of Arduino IDE or C++ compiler, you may need to use
 // an empty template argument (<>), as Class Template Argument Deduction (CTAD) is not
@@ -22,8 +20,21 @@ BLESerial SerialBLE;
 // BLESerial<etl::circular_buffer<uint8_t, 255>> SerialBLE;
 
 void setup() {
-    Serial.begin(9600);
-    SerialBLE.begin(device_name);
+    BLEDevice::init("ESP32-BLE-Slave");
+
+    BLEServer* pServer = BLEDevice::createServer();
+
+    // Transparent UART Service
+    // https://developerhelp.microchip.com/xwiki/bin/view/applications/ble/android-development-for-bm70rn4870/transparent-uart-service-for-bm70rn4870/
+    auto pService = pServer->createService("49535343-FE7D-4AE5-8FA9-9FAFD205E455");
+
+    auto pRxCharacteristic = pService->createCharacteristic("49535343-1E4D-4BD9-BA61-23C647249616", NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::WRITE_NR | NIMBLE_PROPERTY::NOTIFY);
+    auto pTxCharacteristic = pService->createCharacteristic("49535343-8841-43F4-A8D4-ECBE34729BB3", NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::NOTIFY);
+
+    SerialBLE.begin(pRxCharacteristic, pTxCharacteristic);
+
+    BLEAdvertising* pAdvertising = pServer->getAdvertising();
+    pAdvertising->start();
 }
 
 void loop() {
