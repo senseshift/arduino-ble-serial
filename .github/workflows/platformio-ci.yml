@@ -89,7 +89,7 @@ jobs:
             -std=gnu++11
           PLATFORMIO_BUILD_FLAGS: |
             -std=gnu++17
-            -D BLESERIAL_USE_NIMBLE=${{ matrix.nimble != false}}
+            -D BLESERIAL_USE_NIMBLE=${{ matrix.nimble != false }}
             -Wall
             -Wextra
             -Wpedantic

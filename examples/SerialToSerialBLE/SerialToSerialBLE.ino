@@ -8,8 +8,9 @@
 String device_name = "ESP32-BLE-Slave";
 
 BLESerial SerialBLE;
-// If you are using older version of Arduino IDE, you may need to use
-// empty template argument (<>), due to the old C++ compiler version (<=std=c++17).
+// If you are using an older version of Arduino IDE or C++ compiler, you may need to use
+// an empty template argument (<>), as Class Template Argument Deduction (CTAD) is not
+// supported in C++ versions older than C++17. For more details, see:
 // https://www.cppreference.com/w/cpp/language/ctad.html
 //
 // Uncomment the line below if you are using an older version of Arduino IDE/C++ compiler
