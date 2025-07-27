@@ -33,7 +33,8 @@ jobs:
           - "esp32:esp32:esp32c3"
         nimble:
           - false
-          - true
+          - '1.4.0'
+          - '2.3.2'
       fail-fast: false
 
     steps:
@@ -46,7 +47,7 @@ jobs:
             - examples/SerialToSerialBLE
           libraries: |
             - source-path: ./
-            - name: NimBLE-Arduino
+            ${{ matrix.nimble != false && format('- name: NimBLE-Arduino@{0}', matrix.nimble) || '' }}
           cli-compile-flags: |
             - --build-property 
-            - build.extra_flags="-DBLESERIAL_USE_NIMBLE=${{ matrix.nimble }}"
+            - build.extra_flags="-DBLESERIAL_USE_NIMBLE=${{ matrix.nimble != false }}"
