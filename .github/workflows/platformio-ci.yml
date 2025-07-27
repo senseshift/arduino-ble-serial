@@ -23,6 +23,7 @@ jobs:
           - "SerialToSerialBLE"
           # - "SerialToSerialBLE_TransparentUART"
           - "SerialToSerialBLE_TransparentUART-NimBLE"
+          # - "SerialToSerialBLE_Secure"
         boards:
           - [ esp32dev, esp32-s3-devkitc-1, esp32-c3-devkitm-1 ]
         nimble:
@@ -44,6 +45,11 @@ jobs:
             boards: [esp32dev, esp32-s3-devkitc-1, esp32-c3-devkitm-1]
           - example: "SerialToSerialBLE_TransparentUART-NimBLE"
             nimble: '^1.4.0'
+            os: ubuntu-latest
+            boards: [esp32dev, esp32-s3-devkitc-1, esp32-c3-devkitm-1]
+
+          - example: "SerialToSerialBLE_Secure"
+            nimble: false
             os: ubuntu-latest
             boards: [esp32dev, esp32-s3-devkitc-1, esp32-c3-devkitm-1]
 
