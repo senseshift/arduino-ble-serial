@@ -37,10 +37,6 @@
 #  include <queue>
 #endif // BLESERIAL_USE_STL
 
-#ifndef BLESERIAL_MTU
-#  define BLESERIAL_MTU 20
-#endif // BLESERIAL_MTU
-
 template<typename T>
 class BLESerialCharacteristicCallbacks;
 
@@ -94,7 +90,7 @@ class BLESerial : public Stream {
     BLESerial(BLESerial const& other) = delete;      // disable copy constructor
     void operator=(BLESerial const& other) = delete; // disable assign constructor
 
-    inline int available() override { return !m_receiveBuffer.empty(); }
+    inline int available() override { return m_receiveBuffer.size(); }
 
     inline int peek() override { return m_receiveBuffer.front(); }
 
