@@ -125,7 +125,17 @@ class BLESerial : public Stream {
         return 1;
     }
 
+    #if defined(BLESERIAL_USE_NIMBLE) && BLESERIAL_USE_NIMBLE
+    #  if defined(BLESERIAL_NIMBLE_VERSION_MAJOR) && BLESERIAL_NIMBLE_VERSION_MAJOR >= 2
+    void flush(void) override { this->m_pTxCharacteristic->notify(); } //"true" needed to be removed  to work with Serial Bluetooth Terminal App
+    #else
     void flush(void) override { this->m_pTxCharacteristic->notify(true); }
+    #endif
+    #else
+    void flush(void) override { this->m_pTxCharacteristic->notify(true); }
+    #endif
+
+
 
     void begin(
       const String& deviceName = String(),
